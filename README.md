@@ -84,18 +84,6 @@ If you want to show the sunrise and sunset times, make sure the `sun` component 
 sun:
 ```
 
-### Dark Sky:
-
-When using Dark Sky you should put the mode to `daily` if you want a daily forecast with highs and lows.
-
-```yaml
-# Example configuration.yaml entry
-weather:
-  - platform: darksky
-    api_key: YOUR_API_KEY
-    mode: daily
-```
-
 ### OpenWeather Map:
 
 When using OpenWeather map you can select hourly(default) or daily forecast to show.

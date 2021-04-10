@@ -1,6 +1,7 @@
-const LitElement = customElements.get("hui-masonry-view") ? Object.getPrototypeOf(customElements.get("hui-masonry-view")) : Object.getPrototypeOf(customElements.get("hui-view"));
+const LitElement = Object.getPrototypeOf(
+  customElements.get("ha-panel-lovelace")
+);
 const html = LitElement.prototype.html;
-const css = LitElement.prototype.css;
 
 const weatherIconsDay = {
   clear: "day",
@@ -18,7 +19,7 @@ const weatherIconsDay = {
   sunny: "day",
   windy: "cloudy",
   "windy-variant": "cloudy-day-3",
-  exceptional: "!!",
+  exceptional: "!!"
 };
 
 const weatherIconsNight = {
@@ -26,7 +27,7 @@ const weatherIconsNight = {
   clear: "night",
   sunny: "night",
   partlycloudy: "cloudy-night-3",
-  "windy-variant": "cloudy-night-3",
+  "windy-variant": "cloudy-night-3"
 };
 
 const windDirections = [
@@ -46,17 +47,8 @@ const windDirections = [
   "WNW",
   "NW",
   "NNW",
-  "N",
+  "N"
 ];
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "weather-card",
-  name: "Weather Card",
-  description: "A custom weather card with animated icons.",
-  preview: true,
-  documentationURL: "https://github.com/bramkragten/weather-card",
-});
 
 const fireEvent = (node, type, detail, options) => {
   options = options || {};
@@ -64,7 +56,7 @@ const fireEvent = (node, type, detail, options) => {
   const event = new Event(type, {
     bubbles: options.bubbles === undefined ? true : options.bubbles,
     cancelable: Boolean(options.cancelable),
-    composed: options.composed === undefined ? true : options.composed,
+    composed: options.composed === undefined ? true : options.composed
   });
   event.detail = detail;
   node.dispatchEvent(event);
@@ -92,7 +84,7 @@ class WeatherCard extends LitElement {
   static get properties() {
     return {
       _config: {},
-      hass: {},
+      hass: {}
     };
   }
 
@@ -101,12 +93,8 @@ class WeatherCard extends LitElement {
     return document.createElement("weather-card-editor");
   }
 
-  static getStubConfig(hass, unusedEntities, allEntities) {
-    let entity = unusedEntities.find((eid) => eid.split(".")[0] === "weather");
-    if (!entity) {
-      entity = allEntities.find((eid) => eid.split(".")[0] === "weather");
-    }
-    return { entity };
+  static getStubConfig() {
+    return {};
   }
 
   setConfig(config) {
@@ -124,8 +112,6 @@ class WeatherCard extends LitElement {
     if (!this._config || !this.hass) {
       return html``;
     }
-
-    this.numberElements = 0;
 
     const stateObj = this.hass.states[this._config.entity];
 
@@ -146,170 +132,153 @@ class WeatherCard extends LitElement {
       `;
     }
 
-    return html`
-      <ha-card @click="${this._handleClick}">
-        ${this._config.current !== false ? this.renderCurrent(stateObj) : ""}
-        ${this._config.details !== false ? this.renderDetails(stateObj) : ""}
-        ${this._config.forecast !== false
-          ? this.renderForecast(stateObj.attributes.forecast)
-          : ""}
-      </ha-card>
-    `;
-  }
-
-  renderCurrent(stateObj) {
-    this.numberElements++;
-
-    return html`
-      <div class="current ${this.numberElements > 1 ? "spacer" : ""}">
-        <span
-          class="icon bigger"
-          style="background: none, url('${this.getWeatherIcon(
-            stateObj.state.toLowerCase(),
-            this.hass.states["sun.sun"]
-          )}') no-repeat; background-size: contain;"
-          >${stateObj.state}
-        </span>
-        ${this._config.name
-          ? html` <span class="title"> ${this._config.name} </span> `
-          : ""}
-        <span class="temp"
-          >${this.getUnit("temperature") == "°F"
-            ? Math.round(stateObj.attributes.temperature)
-            : stateObj.attributes.temperature}</span
-        >
-        <span class="tempc"> ${this.getUnit("temperature")}</span>
-      </div>
-    `;
-  }
-
-  renderDetails(stateObj) {
-    const sun = this.hass.states["sun.sun"];
-    let next_rising;
-    let next_setting;
-
-    if (sun) {
-      next_rising = new Date(sun.attributes.next_rising);
-      next_setting = new Date(sun.attributes.next_setting);
-    }
-
-    this.numberElements++;
-
-    return html`
-      <ul class="variations ${this.numberElements > 1 ? "spacer" : ""}">
-        <li>
-          <ha-icon icon="mdi:water-percent"></ha-icon>
-          ${stateObj.attributes.humidity}<span class="unit"> % </span>
-        </li>
-        <li>
-          <ha-icon icon="mdi:weather-windy"></ha-icon> ${windDirections[
-            parseInt((stateObj.attributes.wind_bearing + 11.25) / 22.5)
-          ]}
-          ${stateObj.attributes.wind_speed}<span class="unit">
-            ${this.getUnit("length")}/h
-          </span>
-        </li>
-        <li>
-          <ha-icon icon="mdi:gauge"></ha-icon>
-          ${stateObj.attributes.pressure}
-          <span class="unit">
-            ${this.getUnit("air_pressure")}
-          </span>
-        </li>
-        <li>
-          <ha-icon icon="mdi:weather-fog"></ha-icon> ${stateObj.attributes
-            .visibility}<span class="unit">
-            ${this.getUnit("length")}
-          </span>
-        </li>
-        ${next_rising
-          ? html`
-              <li>
-                <ha-icon icon="mdi:weather-sunset-up"></ha-icon>
-                ${next_rising.toLocaleTimeString()}
-              </li>
-            `
-          : ""}
-        ${next_setting
-          ? html`
-              <li>
-                <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
-                ${next_setting.toLocaleTimeString()}
-              </li>
-            `
-          : ""}
-      </ul>
-    `;
-  }
-
-  renderForecast(forecast) {
-    if (!forecast || forecast.length === 0) {
-      return html``;
-    }
-
     const lang = this.hass.selectedLanguage || this.hass.language;
 
-    this.numberElements++;
+    const cloud_coverage = 
+      this.hass.states["sensor.openweathermap_cloud_coverage"].state;
+
+    const feels_like =
+      this.hass.states["sensor.openweathermap_feels_like_temperature"].state;
+
+    const precip_prob =
+      this.hass.states["sensor.openweathermap_forecast_precipitation_probability"].state;
+
+    const precip =
+      this.hass.states["sensor.openweathermap_forecast_precipitation"].state;
+
+    const current_uvindex =
+      this.hass.states["sensor.openweathermap_uv_index"].state;
+
+    const next_rising = new Date(
+      this.hass.states["sun.sun"].attributes.next_rising
+    );
+    const next_setting = new Date(
+      this.hass.states["sun.sun"].attributes.next_setting
+    );
+
     return html`
-      <div class="forecast clear ${this.numberElements > 1 ? "spacer" : ""}">
-        ${forecast
-          .slice(
-            0,
-            this._config.number_of_forecasts
-              ? this._config.number_of_forecasts
-              : 5
-          )
-          .map(
-            (daily) => html`
-              <div class="day">
-                <div class="dayname">
-                  ${this._config.hourly_forecast
-                    ? new Date(daily.datetime).toLocaleTimeString(lang, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : new Date(daily.datetime).toLocaleDateString(lang, {
-                        weekday: "short",
-                      })}
+      ${this.renderStyle()}
+      <ha-card @click="${this._handleClick}">
+        <span
+          class="icon bigger"
+          style="background: none, url(${
+            this.getWeatherIcon(
+              stateObj.state.toLowerCase(),
+              this.hass.states["sun.sun"].state
+            )
+          }) no-repeat; background-size: contain;"
+          >${stateObj.state}
+        </span>
+        ${
+          this._config.name
+            ? html`
+                <span class="title"> ${this._config.name} </span>
+              `
+            : ""
+        }
+        <span class="temp"
+          >${
+            this.getUnit("temperature") == "°F"
+              ? Math.round(stateObj.attributes.temperature)
+              : stateObj.attributes.temperature
+          }</span
+        >
+        <span class="tempc"> ${this.getUnit("temperature")}</span>
+        <span class="tempd">Feels like ${feels_like} ${this.getUnit("temperature")}</span>
+        <span>
+          <ul class="variations">
+            <li>
+              <span class="ha-icon"
+                ><ha-icon icon="mdi:water-percent"></ha-icon
+              ></span>
+              ${stateObj.attributes.humidity}<span class="unit"> % </span>
+              <br />
+              <span class="ha-icon"
+                ><ha-icon icon="mdi:weather-windy"></ha-icon
+              ></span>
+              ${
+                windDirections[
+                  parseInt((stateObj.attributes.wind_bearing + 11.25) / 22.5)
+                ]
+              }
+              ${stateObj.attributes.wind_speed}<span class="unit">
+                ${this.getUnit("length")}/h
+              </span>
+              <br />
+              <span class="ha-icon"
+                ><ha-icon icon="mdi:sunglasses"></ha-icon
+              ></span>
+              ${Math.round(current_uvindex * 100) / 100}<span class="unit"> UV Index </span>
+            </li>
+            <li>
+              <span class="ha-icon"><ha-icon icon="mdi:gauge"></ha-icon></span>
+              ${stateObj.attributes.pressure}<span class="unit">
+                ${this.getUnit("air_pressure")}
+              </span>
+              <br />
+              <span class="ha-icon"><ha-icon icon="mdi:weather-cloudy"></ha-icon></span>
+              ${cloud_coverage}<span class="unit"> % </span>
+              <br />
+              <span class="ha-icon"
+                ><ha-icon icon="mdi:weather-rainy"></ha-icon
+              ></span>
+              ${precip_prob}<span class="unit"> % - </span>
+              ${precip}<span class="unit">
+                ${this.getUnit("precipitation")}
+              </span>
+            </li>
+          </ul>
+        </span>
+        ${
+          stateObj.attributes.forecast &&
+          stateObj.attributes.forecast.length > 0
+            ? html`
+                <div class="forecast clear">
+                  ${
+                    stateObj.attributes.forecast.slice(0, 5).map(
+                      daily => html`
+                        <div class="day">
+                          <span class="dayname"
+                            >${
+                              new Date(daily.datetime).toLocaleDateString(
+                                lang,
+                                {
+                                  weekday: "short"
+                                }
+                              )
+                            }</span
+                          >
+                          <br /><i
+                            class="icon"
+                            style="background: none, url(${
+                              this.getWeatherIcon(daily.condition.toLowerCase())
+                            }) no-repeat; background-size: contain;"
+                          ></i>
+                          <br /><span class="highTemp"
+                            >${daily.temperature}${
+                              this.getUnit("temperature")
+                            }</span
+                          >
+                          ${
+                            typeof daily.templow !== 'undefined'
+                              ? html`
+                                  <br /><span class="lowTemp"
+                                    >${daily.templow}${
+                                      this.getUnit("temperature")
+                                    }</span
+                                  >
+                                `
+                              : ""
+                          }
+                        </div>
+                      `
+                    )
+                  }
                 </div>
-                <i
-                  class="icon"
-                  style="background: none, url('${this.getWeatherIcon(
-                    daily.condition.toLowerCase()
-                  )}') no-repeat; background-size: contain"
-                ></i>
-                <div class="highTemp">
-                  ${daily.temperature}${this.getUnit("temperature")}
-                </div>
-                ${daily.templow !== undefined
-                  ? html`
-                      <div class="lowTemp">
-                        ${daily.templow}${this.getUnit("temperature")}
-                      </div>
-                    `
-                  : ""}
-                ${!this._config.hide_precipitation &&
-                daily.precipitation !== undefined &&
-                daily.precipitation !== null
-                  ? html`
-                      <div class="precipitation">
-                        ${Math.round(daily.precipitation*10)/10} ${this.getUnit("precipitation")}
-                      </div>
-                    `
-                  : ""}
-                ${!this._config.hide_precipitation &&
-                daily.precipitation_probability !== undefined &&
-                daily.precipitation_probability !== null
-                  ? html`
-                      <div class="precipitation_probability">
-                        ${Math.round(daily.precipitation_probability)} ${this.getUnit("precipitation_probability")}
-                      </div>
-                    `
-                  : ""}
-              </div>
-            `
-          )}
-      </div>
+              `
+            : ""
+        }
+      </ha-card>
     `;
   }
 
@@ -317,9 +286,9 @@ class WeatherCard extends LitElement {
     return `${
       this._config.icons
         ? this._config.icons
-        : "https://cdn.jsdelivr.net/gh/bramkragten/weather-card/dist/icons/"
+        : "https://cdn.jsdelivr.net/gh/bramkragten/weather-card@master/dist/icons/"
     }${
-      sun && sun.state == "below_horizon"
+      sun && sun == "below_horizon"
         ? weatherIconsNight[condition]
         : weatherIconsDay[condition]
     }.svg`;
@@ -334,8 +303,6 @@ class WeatherCard extends LitElement {
         return lengthUnit;
       case "precipitation":
         return lengthUnit === "km" ? "mm" : "in";
-      case "precipitation_probability":
-        return "%";
       default:
         return this.hass.config.unit_system[measure] || "";
     }
@@ -349,181 +316,165 @@ class WeatherCard extends LitElement {
     return 3;
   }
 
-  static get styles() {
-    return css`
-      ha-card {
-        cursor: pointer;
-        margin: auto;
-        overflow: hidden;
-        padding-top: 1.3em;
-        padding-bottom: 1.3em;
-        padding-left: 1em;
-        padding-right: 1em;
-        position: relative;
-      }
+  renderStyle() {
+    return html`
+      <style>
+        ha-card {
+          cursor: pointer;
+          margin: auto;
+          padding-top: 2.5em;
+          padding-bottom: 1.3em;
+          padding-left: 1em;
+          padding-right: 1em;
+          position: relative;
+        }
 
-      .spacer {
-        padding-top: 1em;
-      }
+        .clear {
+          clear: both;
+        }
 
-      .clear {
-        clear: both;
-      }
+        .ha-icon {
+          height: 18px;
+          margin-right: 5px;
+          color: var(--paper-item-icon-color);
+        }
 
-      .title {
-        position: absolute;
-        left: 3em;
-        font-weight: 300;
-        font-size: 3em;
-        color: var(--primary-text-color);
-      }
-
-      .temp {
-        font-weight: 300;
-        font-size: 4em;
-        color: var(--primary-text-color);
-        position: absolute;
-        right: 1em;
-      }
-
-      .tempc {
-        font-weight: 300;
-        font-size: 1.5em;
-        vertical-align: super;
-        color: var(--primary-text-color);
-        position: absolute;
-        right: 1em;
-        margin-top: -14px;
-        margin-right: 7px;
-      }
-
-      @media (max-width: 460px) {
         .title {
-          font-size: 2.2em;
-          left: 4em;
+          position: absolute;
+          left: 3em;
+          top: 0.6em;
+          font-weight: 300;
+          font-size: 3em;
+          color: var(--primary-text-color);
         }
         .temp {
-          font-size: 3em;
+          font-weight: 300;
+          font-size: 4em;
+          color: var(--primary-text-color);
+          position: absolute;
+          right: 1em;
+          top: 0.3em;
         }
+
         .tempc {
-          font-size: 1em;
+          font-weight: 300;
+          font-size: 1.5em;
+          vertical-align: super;
+          color: var(--primary-text-color);
+          position: absolute;
+          right: 1em;
+          margin-top: -14px;
+          margin-right: 7px;
         }
-      }
 
-      .current {
-        padding: 1.2em 0;
-        margin-bottom: 3.5em;
-      }
+        .tempd {
+          font-weight: 300;
+          font-size: 0.9em;
+          vertical-align: super;
+          color: var(--primary-text-color);
+          position: absolute;
+          right: 1em;
+          margin-top: 16px;
+          margin-right: 24px;
+        }
 
-      .variations {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-between;
-        font-weight: 300;
-        color: var(--primary-text-color);
-        list-style: none;
-        padding: 0 1em;
-        margin: 0;
-      }
+        .variations {
+          display: flex;
+          flex-flow: row wrap;
+          justify-content: space-between;
+          font-weight: 300;
+          color: var(--primary-text-color);
+          list-style: none;
+          margin-top: 4.5em;
+          padding: 0;
+        }
 
-      .variations ha-icon {
-        height: 22px;
-        margin-right: 5px;
-        color: var(--paper-item-icon-color);
-      }
+        .variations li {
+          flex-basis: auto;
+        }
 
-      .variations li {
-        flex-basis: auto;
-        width: 50%;
-      }
+        .variations li:first-child {
+          padding-left: 1em;
+        }
 
-      .variations li:nth-child(2n) {
-        text-align: right;
-      }
+        .variations li:last-child {
+          padding-right: 1em;
+        }
 
-      .variations li:nth-child(2n) ha-icon {
-        margin-right: 0;
-        margin-left: 8px;
-        float: right;
-      }
+        .unit {
+          font-size: 0.8em;
+        }
 
-      .unit {
-        font-size: 0.8em;
-      }
+        .forecast {
+          width: 100%;
+          margin: 0 auto;
+          height: 9em;
+        }
 
-      .forecast {
-        width: 100%;
-        margin: 0 auto;
-        display: flex;
-      }
+        .day {
+          display: block;
+          width: 20%;
+          float: left;
+          text-align: center;
+          color: var(--primary-text-color);
+          border-right: 0.1em solid #d9d9d9;
+          line-height: 2;
+          box-sizing: border-box;
+        }
 
-      .day {
-        flex: 1;
-        display: block;
-        text-align: center;
-        color: var(--primary-text-color);
-        border-right: 0.1em solid #d9d9d9;
-        line-height: 2;
-        box-sizing: border-box;
-      }
+        .dayname {
+          text-transform: uppercase;
+        }
 
-      .dayname {
-        text-transform: uppercase;
-      }
+        .forecast .day:first-child {
+          margin-left: 0;
+        }
 
-      .forecast .day:first-child {
-        margin-left: 0;
-      }
+        .forecast .day:nth-last-child(1) {
+          border-right: none;
+          margin-right: 0;
+        }
 
-      .forecast .day:nth-last-child(1) {
-        border-right: none;
-        margin-right: 0;
-      }
+        .highTemp {
+          font-weight: bold;
+        }
 
-      .highTemp {
-        font-weight: bold;
-      }
+        .lowTemp {
+          color: var(--secondary-text-color);
+        }
 
-      .lowTemp {
-        color: var(--secondary-text-color);
-      }
+        .icon.bigger {
+          width: 10em;
+          height: 10em;
+          margin-top: -4em;
+          position: absolute;
+          left: 0em;
+        }
 
-      .precipitation {
-        color: var(--primary-text-color);
-        font-weight: 300;
-      }
+        .icon {
+          width: 50px;
+          height: 50px;
+          margin-right: 5px;
+          display: inline-block;
+          vertical-align: middle;
+          background-size: contain;
+          background-position: center center;
+          background-repeat: no-repeat;
+          text-indent: -9999px;
+        }
 
-      .icon.bigger {
-        width: 10em;
-        height: 10em;
-        margin-top: -4em;
-        position: absolute;
-        left: 0em;
-      }
-
-      .icon {
-        width: 50px;
-        height: 50px;
-        margin-right: 5px;
-        display: inline-block;
-        vertical-align: middle;
-        background-size: contain;
-        background-position: center center;
-        background-repeat: no-repeat;
-        text-indent: -9999px;
-      }
-
-      .weather {
-        font-weight: 300;
-        font-size: 1.5em;
-        color: var(--primary-text-color);
-        text-align: left;
-        position: absolute;
-        top: -0.5em;
-        left: 6em;
-        word-wrap: break-word;
-        width: 30%;
-      }
+        .weather {
+          font-weight: 300;
+          font-size: 1.5em;
+          color: var(--primary-text-color);
+          text-align: left;
+          position: absolute;
+          top: -0.5em;
+          left: 6em;
+          word-wrap: break-word;
+          width: 30%;
+        }
+      </style>
     `;
   }
 }

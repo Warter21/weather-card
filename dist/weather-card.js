@@ -184,7 +184,7 @@ class WeatherCard extends LitElement {
           }</span
         >
         <span class="tempc"> ${this.getUnit("temperature")}</span>
-        <span class="tempd">Feels like ${feels_like} ${this.getUnit("temperature")}</span>
+        <span class="tempd">Feels like ${Math.round(feels_like * 10) / 10} ${this.getUnit("temperature")}</span>
         <span>
           <ul class="variations">
             <li>

@@ -47,7 +47,7 @@ And add a card with type `custom:weather-card`:
 
 ```yaml
 type: custom:weather-card
-entity: weather.yourweatherentity
+entity: weather.openweathermap
 name: Optional name
 ```
 
@@ -55,7 +55,7 @@ If you want to use your local icons add the location to the icons:
 
 ```yaml
 type: custom:weather-card
-entity: weather.yourweatherentity
+entity: weather.openweathermap
 icons: "/local/custom-lovelace/weather-card/icons/"
 ```
 
@@ -69,7 +69,7 @@ The 3 different rows, being:
 
 ```yaml
 type: custom:weather-card
-entity: weather.yourweatherentity
+entity: weather.openweathermap
 current: true
 details: false
 forecast: true

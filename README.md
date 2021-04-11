@@ -4,7 +4,7 @@ Originally created for the [old UI](https://community.home-assistant.io/t/custom
 
 This card uses the awesome [animated SVG weather icons by amCharts](https://www.amcharts.com/free-animated-svg-weather-icons/).
 
-![Weather Card](https://github.com/bramkragten/custom-ui/blob/master/weather-card/weather-card.gif?raw=true)
+![Weather Card](https://github.com/Warter21/weather-card/blob/master/weather-card.png?raw=true)
 
 Thanks for all picking this card up.
 

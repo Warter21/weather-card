@@ -375,7 +375,7 @@ class WeatherCard extends LitElement {
           position: absolute;
           right: 1em;
           margin-top: 16px;
-          margin-right: 24px;
+          margin-right: 25px;
         }
 
         .variations {

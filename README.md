@@ -77,13 +77,6 @@ hourly_forecast: false
 number_of_forecasts: 5
 ```
 
-If you want to show the sunrise and sunset times, make sure the `sun` component is enabled:
-
-```yaml
-# Example configuration.yaml entry
-sun:
-```
-
 ### OpenWeather Map:
 
 When using OpenWeather map you can select hourly(default) or daily forecast to show.

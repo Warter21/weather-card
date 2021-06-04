@@ -1,7 +1,6 @@
-const LitElement = Object.getPrototypeOf(
-  customElements.get("ha-panel-lovelace")
-);
+const LitElement = customElements.get("ha-panel-lovelace") ? Object.getPrototypeOf(customElements.get("ha-panel-lovelace")) : Object.getPrototypeOf(customElements.get("hc-lovelace"));
 const html = LitElement.prototype.html;
+const css = LitElement.prototype.css;
 
 const weatherIconsDay = {
   clear: "day",
